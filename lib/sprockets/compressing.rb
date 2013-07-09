@@ -10,6 +10,20 @@ module Sprockets
       @compressors[mime_type][sym] = klass
     end
 
+    def file_compressor
+      if ! defined? @file_compressor 
+        Zlib::Deflate
+      elsif @file_compressor.nil? 
+        Zlib::Deflate
+      else
+        @file_compressor
+      end
+    end
+
+    def file_compressor=(compressor)
+      @file_compressor = compressor
+    end
+
     # Return CSS compressor or nil if none is set
     def css_compressor
       @css_compressor if defined? @css_compressor

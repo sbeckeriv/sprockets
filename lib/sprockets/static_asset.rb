@@ -29,14 +29,9 @@ module Sprockets
         # Open file and run it through `Zlib`
         pathname.open('rb') do |rd|
           File.open("#{filename}+", 'wb') do |wr|
-            gz = Zlib::GzipWriter.new(wr, Zlib::BEST_COMPRESSION)
-            gz.mtime = mtime.to_i
-            buf = ""
-            while rd.read(16384, buf)
-              gz.write(buf)
-            end
-            gz.close
+            wr << @environment.file_compressor.deflate(rd.read)
           end
+          File.utime(mtime.to_i,mtime.to_i, "#{filename}+")
         end
       else
         # If no compression needs to be done, we can just copy it into place.

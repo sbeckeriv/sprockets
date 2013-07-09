@@ -28,13 +28,13 @@ module Sprockets
       nil
     end
 
-    attr_reader :logical_path, :pathname
+    attr_reader :logical_path, :pathname, :environment
     attr_reader :content_type, :mtime, :length, :digest
     alias_method :bytesize, :length
 
     def initialize(environment, logical_path, pathname)
       raise ArgumentError, "Asset logical path has no extension: #{logical_path}" if File.extname(logical_path) == ""
-
+      @environment  = environment
       @root         = environment.root
       @logical_path = logical_path.to_s
       @pathname     = Pathname.new(pathname)
@@ -48,7 +48,7 @@ module Sprockets
     # Initialize `Asset` from serialized `Hash`.
     def init_with(environment, coder)
       @root = environment.root
-
+      @environment  = environment
       @logical_path = coder['logical_path']
       @content_type = coder['content_type']
       @digest       = coder['digest']
@@ -146,10 +146,7 @@ module Sprockets
       File.open("#{filename}+", 'wb') do |f|
         if options[:compress]
           # Run contents through `Zlib`
-          gz = Zlib::GzipWriter.new(f, Zlib::BEST_COMPRESSION)
-          gz.mtime = mtime.to_i
-          gz.write to_s
-          gz.close
+          f.write @environment.file_compressor.deflate(to_s)
         else
           # Write out as is
           f.write to_s

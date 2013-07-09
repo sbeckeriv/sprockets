@@ -23,6 +23,10 @@ module EnvironmentTests
     assert_nil @env.js_compressor
   end
 
+  test "active file compressor" do
+    assert_equal Zlib::Deflate, @env.file_compressor
+  end
+
   test "paths" do
     assert_equal [fixture_path("default")], @env.paths.to_a
   end
@@ -429,6 +433,13 @@ class TestEnvironment < Sprockets::TestCase
     assert @env.css_compressor
     @env.css_compressor = nil
     assert_nil @env.css_compressor
+  end
+
+  test "setting file compressor to nil clears current compressor" do
+    @env.file_compressor = WhitespaceCompressor
+    assert_equal WhitespaceCompressor, @env.file_compressor
+    @env.file_compressor = nil
+    assert_equal Zlib::Deflate, @env.file_compressor
   end
 
   test "setting js compressor to nil clears current compressor" do
