@@ -21,6 +21,8 @@ module Sprockets
     end
 
     def file_compressor=(compressor)
+      puts "set compressor"
+      pp compressor
       @file_compressor = compressor
     end
 
